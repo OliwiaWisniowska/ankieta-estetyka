@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Badanie percepcji walorów wizualnych i estetyki obrazów cyfrowych</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      max-width: 780px;
+      margin: 28px auto;
+      padding: 0 16px 40px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      margin: 0 0 12px;
+      line-height: 1.3;
+      color: #0f172a;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 0 0 18px;
+      color: #1e293b;
+    }
+
+    p {
+      margin: 0 0 10px;
+      color: #334155;
+    }
+
+    /* Pasek postępu */
+    .progress-wrap {
+      margin-bottom: 18px;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.25s ease;
+    }
+
+    /* Kontener obrazu */
+    .img-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 16px 0 22px;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .img-box img {
+      max-width: 380px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      background: #e2e8f0;
+    }
+
+    /* Etykieta w części C */
+    .label-badge {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: var(--primary-soft);
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      border-radius: 8px;
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+    }
+    .label-badge .label-cat {
+      display: block;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .label-badge .label-title {
+      display: block;
+      font-size: 0.88rem;
+      color: #1e40af;
+      margin-top: 2px;
+    }
+
+    /* Pytania */
+    .q-block {
+      margin: 20px 0;
+      padding-top: 16px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .q-block:first-child {
+      border-top: none;
+      padding-top: 0;
+      margin-top: 0;
+    }
+    .q-title {
+      display: block;
+      font-weight: 600;
+      font-size: 0.98rem;
+      color: #0f172a;
+    }
+
+    select {
+      margin-top: 8px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      min-width: 220px;
+    }
+
+    /* Skala 1-5 z etykietami po lewej i prawej */
+    .scale-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .scale-end {
+      font-size: 0.84rem;
+      color: var(--muted);
+      max-width: 130px;
+      line-height: 1.3;
+      flex-shrink: 0;
+    }
+
+    .scale-end.left {
+      text-align: right;
+    }
+
+    .scale-end.right {
+      text-align: left;
+    }
+
+    .scale {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      flex: 1;
+    }
+
+    .scale label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .scale label:hover {
+      border-color: var(--primary);
+      background: #f8fafc;
+    }
+
+    .scale input[type="radio"] {
+      display: none;
+    }
+
+    .scale label:has(input:checked) {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+
+    @media (max-width: 600px) {
+      .scale-wrap {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .scale {
+        order: -1;
+        flex-basis: 100%;
+      }
+      .scale-end {
+        max-width: none;
+        flex: 1;
+      }
+      .scale-end.left {
+        text-align: left;
+      }
+      .scale-end.right {
+        text-align: right;
+      }
+    }
+
+    /* Opcje wyboru w części B */
+    .opt-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .opt-list label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #fff;
+      transition: all 0.15s ease;
+    }
+    .opt-list label:hover {
+      border-color: var(--primary);
+      background: #f8fafc;
+    }
+    .opt-list input[type="radio"] {
+      margin-top: 4px;
+      accent-color: var(--primary);
+    }
+    .opt-list label:has(input:checked) {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      margin-top: 14px;
+      transition: background 0.15s ease;
+    }
+    button:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="intro-card" class="card">
+    <h1>Badanie percepcji walorów wizualnych i estetyki obrazów cyfrowych</h1>
+    <p>
+      Szanowny Respondencie,
+      ankieta stanowi część badania realizowanego na potrzeby pracy magisterskiej poświęconej percepcji estetyki obrazów. Badanie składa się z krótkiej metryczki oraz trzech części z prezentacją obrazów. Jest w pełni anonimowe, a jego wypełnienie zajmuje ok. 8–10 minut. Dziękuję za poświęcony czas!
+    </p>
+  </div>
+
+  <!-- METRYCZKA -->
+  <div id="step-meta" class="card">
+    <h2>Metryczka</h2>
+
+    <div class="q-block">
+      <label class="q-title" for="wiek">1. Wiek:</label>
+      <select id="wiek">
+        <option value="">-- wybierz przedział --</option>
+        <option value="Poniżej 18 lat">Poniżej 18 lat</option>
+        <option value="18-24">18–24</option>
+        <option value="25-34">25–34</option>
+        <option value="35-49">35–49</option>
+        <option value="50 lat i więcej">50 lat i więcej</option>
+      </select>
+    </div>
+
+    <div class="q-block">
+      <span class="q-title">2. Jak często obcujesz ze sztuką (muzea, galerie, grafika cyfrowa)?</span>
+      <div class="scale-wrap">
+        <span class="scale-end left">1 – Rzadko / Wcale</span>
+        <div class="scale" id="scale-art"></div>
+        <span class="scale-end right">5 – Bardzo często</span>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <span class="q-title">3. Jak oceniasz swój poziom znajomości narzędzi wykorzystujących sztuczną inteligencję?</span>
+      <div class="scale-wrap">
+        <span class="scale-end left">1 – Brak wiedzy</span>
+        <div class="scale" id="scale-ai"></div>
+        <span class="scale-end right">5 – Zaawansowany użytkownik</span>
+      </div>
+    </div>
+
+    <button id="btn-start">Rozpocznij badanie</button>
+  </div>
+
+  <!-- CZĘŚĆ TRIALOWA (A, B, C) -->
+  <div id="step-trial" class="card hidden">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span id="trial-part-label">Część A</span>
+        <span id="trial-counter">Postęp: 1 / 24</span>
+      </div>
+      <div class="progress-track">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+    </div>
+
+    <div class="img-box">
+      <img id="trial-img" src="" alt="Obraz testowy" loading="eager" />
+      <div id="trial-label" class="label-badge hidden">
+        <span id="label-cat" class="label-cat"></span>
+        <span id="label-title" class="label-title"></span>
+      </div>
+    </div>
+
+    <div id="trial-questions"></div>
+    <button id="btn-next">Dalej</button>
+  </div>
+
+  <!-- ZAKOŃCZENIE -->
+  <div id="step-done" class="card hidden">
+    <h2>Dziękuję za udział w badaniu!</h2>
+    <p id="status-msg">Wysyłanie odpowiedzi...</p>
+  </div>
+
+  <script>
+    // PODMIEŃ NA SWÓJ ADRES WEB APP Z GOOGLE APPS SCRIPT:
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyhNn4clw1OcdNbY188Z1wiPfFd3d2-_uIGkIChvQzu9ovqDIfQMSYzc1yLNkAQ_Jk/exec";
+
+    const PER_GROUP = 8; // po 8 obrazów w sekcji A, B i C (łącznie 24 bez zwracania)
+
+    // fullLabel wyświetla się wyłącznie w części C i NIE jest eksportowane do arkusza
+    const IMAGES = [
+      // Sztuka tradycyjna (A)
+      { id: "AA_1", src: "images/AA1.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Abstract with Rose (1945), Edward Wadsworth" },
+      { id: "AA_2", src: "images/AA2.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Bouquet de fleurs (1930), Georges Valmier" },
+      { id: "AA_3", src: "images/AA3.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Composition No. 107 (1920), Jacoba van Heemskerck" },
+      { id: "AA_4", src: "images/AA4.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Rote Tiefe (1925), Wassily Kandinsky" },
+      { id: "AL_1", src: "images/AL1.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Le Clos à Gouvernes (1889), Léo Gausson" },
+      { id: "AL_2", src: "images/AL2.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "A Peep At The Sea, Fairlight Glen (1859), Sidney Richard Percy" },
+      { id: "AL_3", src: "images/AL3.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Herde in den Highlands (1895), Louis Bosworth Hurt" },
+      { id: "AL_4", src: "images/AL4.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Boats on the Lake (1896–1944), Leonard Pękalski" },
+      { id: "AS_1", src: "images/AS1.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Dessert no. 4 (1871), Carducius Plantagenet Ream" },
+      { id: "AS_2", src: "images/AS2.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Stillleben mit Goldfischglas (1810), Johann Knapp" },
+      { id: "AS_3", src: "images/AS3.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Game, fruit basket and vase of flowers on a table (1579–1657), Frans Snyders" },
+      { id: "AS_4", src: "images/AS4.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Still Life with Vase of Hawthorn... (1872), Henri Fantin-Latour" },
+      { id: "AP_1", src: "images/AP1.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Head of an Indian (1925), Henrique Bernardelli" },
+      { id: "AP_2", src: "images/AP2.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "L’Inverno (1890–1910), Édouard Bisson" },
+      { id: "AP_3", src: "images/AP3.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "A Maine Fisherman (1857–1927), Edward Henry Potthast" },
+      { id: "AP_4", src: "images/AP4.JPEG", categoryName: "Sztuka tradycyjna", fullLabel: "Devant le miroir à l’Ile-d’Yeu (1919), Henri Lebasque" },
+
+      // Grafika algorytmiczna (B)
+      { id: "BA_1", src: "images/BA1.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Växt – Tengil" },
+      { id: "BA_2", src: "images/BA2.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Meaningless – Amy Goodchild" },
+      { id: "BA_3", src: "images/BA3.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Tout tracé – Florian Zumbrunn" },
+      { id: "BA_4", src: "images/BA4.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Hatches – Rob Dixon (Radix)" },
+      { id: "BL_1", src: "images/BL1.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Seasky – Ralgo" },
+      { id: "BL_2", src: "images/BL2.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Nocturne – James Mendenhall" },
+      { id: "BL_3", src: "images/BL3.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Life and Love and Nothing – Nat Sarkissian" },
+      { id: "BL_4", src: "images/BL4.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "degenerative – ryley-o.eth x Sally Ohlsen" },
+      { id: "BS_1", src: "images/BS1.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Cattleya – Ben Snell" },
+      { id: "BS_2", src: "images/BS2.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Chimera – mpkoz" },
+      { id: "BS_3", src: "images/BS3.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Unseen Flora – fuse*" },
+      { id: "BS_4", src: "images/BS4.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Delirium Blooms – Leonardo Solaas" },
+      { id: "BP_1", src: "images/BP1.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "paracosm – Claire Silver" },
+      { id: "BP_2", src: "images/BP2.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Spongenuity's Portrait Lab – Spongenuity" },
+      { id: "BP_3", src: "images/BP3.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "Aura – Roope Rainisto" },
+      { id: "BP_4", src: "images/BP4.JPEG", categoryName: "Grafika algorytmiczna", fullLabel: "immprint – imma" },
+
+      // Obrazy AI (C)
+      { id: "CA_1", src: "images/CA1.JPEG", categoryName: "Obraz AI", fullLabel: "Model Krea 2 Turbo (autor: Sharon Goodhand)" },
+      { id: "CA_2", src: "images/CA2.JPEG", categoryName: "Obraz AI", fullLabel: "Model Z-Image Turbo (autor: Glenda)" },
+      { id: "CA_3", src: "images/CA3.JPEG", categoryName: "Obraz AI", fullLabel: "Model ChatGPT 2 (autor: rondudly)" },
+      { id: "CA_4", src: "images/CA4.JPEG", categoryName: "Obraz AI", fullLabel: "Model Leonardo Diffusion (autor: Oliwia Wiśniowska)" },
+      { id: "CL_1", src: "images/CL1.JPEG", categoryName: "Obraz AI", fullLabel: "Model Midjourney (autor: sampaadartx)" },
+      { id: "CL_2", src: "images/CL2.JPEG", categoryName: "Obraz AI", fullLabel: "Model DaVinci2 (autor: JasonzBrain)" },
+      { id: "CL_3", src: "images/CL3.JPEG", categoryName: "Obraz AI", fullLabel: "Model Seedream 4.0 (autor: anonim)" },
+      { id: "CL_4", src: "images/CL4.JPEG", categoryName: "Obraz AI", fullLabel: "Model P Image Pro (autor: hagar amir)" },
+      { id: "CS_1", src: "images/CS1.JPEG", categoryName: "Obraz AI", fullLabel: "Model ChatGPT (autor: César Martínez)" },
+      { id: "CS_2", src: "images/CS2.JPEG", categoryName: "Obraz AI", fullLabel: "Model Z-Image Turbo (autor: Andrus Perens)" },
+      { id: "CS_3", src: "images/CS3.JPEG", categoryName: "Obraz AI", fullLabel: "Model Krea 2 Turbo (autor: Tlat)" },
+      { id: "CS_4", src: "images/CS4.JPEG", categoryName: "Obraz AI", fullLabel: "Model Kling 3 (autor: VJBurrows)" },
+      { id: "CP_1", src: "images/CP1.JPEG", categoryName: "Obraz AI", fullLabel: "Model GPT Image 2 (autor: mark peterson)" },
+      { id: "CP_2", src: "images/CP2.JPEG", categoryName: "Obraz AI", fullLabel: "Model ChatGPT (autor: Deborah Register)" },
+      { id: "CP_3", src: "images/CP3.JPEG", categoryName: "Obraz AI", fullLabel: "Model Z-Image Turbo (autor: LoZo)" },
+      { id: "CP_4", src: "images/CP4.JPEG", categoryName: "Obraz AI", fullLabel: "Model Z-Image Turbo (autor: Lee)" }
+    ];
+
+    function getCodesFromId(id) {
+      return {
+        category: id.charAt(0),
+        subcategory: id.charAt(1)
+      };
+    }
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function renderScale(containerId, name) {
+      const el = document.getElementById(containerId);
+      el.innerHTML = [1, 2, 3, 4, 5]
+        .map(v => `<label><input type="radio" name="${name}" value="${v}" />${v}</label>`)
+        .join("");
+    }
+    renderScale("scale-art", "art");
+    renderScale("scale-ai", "ai");
+
+    let trials = [];
+    let currentIdx = 0;
+    const results = { A: [], B: [], C: [] };
+    let metaData = {};
+
+    document.getElementById("btn-start").addEventListener("click", () => {
+      const wiek = document.getElementById("wiek").value;
+      const art = document.querySelector('input[name="art"]:checked')?.value;
+      const ai = document.querySelector('input[name="ai"]:checked')?.value;
+
+      if (!wiek || !art || !ai) {
+        alert("Proszę uzupełnić wszystkie pytania w metryczce.");
+        return;
+      }
+
+      const shuffled = shuffle(IMAGES);
+      const poolA = shuffled.slice(0, PER_GROUP);
+      const poolB = shuffled.slice(PER_GROUP, PER_GROUP * 2);
+      const poolC = shuffled.slice(PER_GROUP * 2, PER_GROUP * 3);
+
+      trials = [
+        ...poolA.map((img, i) => ({ type: "A", idx: i + 1, total: PER_GROUP, img })),
+        ...poolB.map((img, i) => ({ type: "B", idx: i + 1, total: PER_GROUP, img })),
+        ...poolC.map((img, i) => ({ type: "C", idx: i + 1, total: PER_GROUP, img }))
+      ];
+
+      metaData = {
+        wiek,
+        kontakt_ze_sztuka: Number(art),
+        znajomosc_ai: Number(ai)
+      };
+      currentIdx = 0;
+
+      document.getElementById("intro-card").classList.add("hidden");
+      document.getElementById("step-meta").classList.add("hidden");
+      document.getElementById("step-trial").classList.remove("hidden");
+      renderTrial();
+    });
+
+    function renderTrial() {
+      const t = trials[currentIdx];
+      document.getElementById("trial-part-label").textContent =
+        `Część ${t.type} (${t.idx} z ${t.total})`;
+      document.getElementById("trial-counter").textContent =
+        `Postęp: ${currentIdx + 1} / ${trials.length}`;
+      document.getElementById("progress-fill").style.width =
+        `${((currentIdx + 1) / trials.length) * 100}%`;
+
+      const imgEl = document.getElementById("trial-img");
+      imgEl.src = t.img.src;
+      imgEl.alt = `Obraz ${t.img.id}`;
+
+      const labelEl = document.getElementById("trial-label");
+      if (t.type === "C") {
+        document.getElementById("label-cat").textContent = t.img.categoryName;
+        document.getElementById("label-title").textContent = t.img.fullLabel;
+        labelEl.classList.remove("hidden");
+      } else {
+        labelEl.classList.add("hidden");
+      }
+
+      const qDiv = document.getElementById("trial-questions");
+      if (t.type === "A") {
+        qDiv.innerHTML = `
+          <div class="q-block">
+            <span class="q-title">1. Jak wysoko oceniasz ogólne walory estetyczne i wartość artystyczną tego obrazu?</span>
+            <div class="scale-wrap">
+              <span class="scale-end left">1 – Zdecydowanie niska</span>
+              <div class="scale">${[1,2,3,4,5].map(v => `<label><input type="radio" name="a1" value="${v}"/>${v}</label>`).join("")}</div>
+              <span class="scale-end right">5 – Zdecydowanie wysoka</span>
+            </div>
+          </div>
+          <div class="q-block">
+            <span class="q-title">2. Jak oceniasz poziom złożoności strukturalnej i szczegółowości obrazu?</span>
+            <div class="scale-wrap">
+              <span class="scale-end left">1 – Bardzo prosty / minimalistyczny</span>
+              <div class="scale">${[1,2,3,4,5].map(v => `<label><input type="radio" name="a2" value="${v}"/>${v}</label>`).join("")}</div>
+              <span class="scale-end right">5 – Bardzo złożony / wieloelementowy</span>
+            </div>
+          </div>
+          <div class="q-block">
+            <span class="q-title">3. Na ile kompozycja barwna obrazu jest dla Ciebie spójna i harmonijna?</span>
+            <div class="scale-wrap">
+              <span class="scale-end left">1 – Niespójna / Chaotyczna</span>
+              <div class="scale">${[1,2,3,4,5].map(v => `<label><input type="radio" name="a3" value="${v}"/>${v}</label>`).join("")}</div>
+              <span class="scale-end right">5 – Doskonale harmonijna</span>
+            </div>
+          </div>
+        `;
+      } else if (t.type === "B") {
+        qDiv.innerHTML = `
+          <div class="q-block">
+            <span class="q-title">1. Wskaż, jak Twoim zdaniem powstał ten obraz:</span>
+            <div class="opt-list">
+              <label><input type="radio" name="b1" value="Sztuka tradycyjna"/><span><strong>Sztuka tradycyjna:</strong> Dzieło stworzone przez człowieka (malarstwo/rysunek)</span></label>
+              <label><input type="radio" name="b1" value="Grafika algorytmiczna"/><span><strong>Grafika algorytmiczna:</strong> Obraz wygenerowany kodem/programem (np. sztuka generatywna)</span></label>
+              <label><input type="radio" name="b1" value="Obraz AI"/><span><strong>Obraz AI:</strong> Wygenerowany przez model sztucznej inteligencji na podstawie promptu (np. DALL-E, Midjourney)</span></label>
+            </div>
+          </div>
+          <div class="q-block">
+            <span class="q-title">2. Jak pewny/a jesteś swojej oceny?</span>
+            <div class="scale-wrap">
+              <span class="scale-end left">1 – Zgadywałem/am</span>
+              <div class="scale">${[1,2,3,4,5].map(v => `<label><input type="radio" name="b2" value="${v}"/>${v}</label>`).join("")}</div>
+              <span class="scale-end right">5 – Jestem pewien/na</span>
+            </div>
+          </div>
+        `;
+      } else {
+        qDiv.innerHTML = `
+          <div class="q-block">
+            <span class="q-title">1. W jakim stopniu zgadzasz się ze stwierdzeniem, że ten obraz posiada wysoką wartość estetyczną i artystyczną?</span>
+            <div class="scale-wrap">
+              <span class="scale-end left">1 – Zdecydowanie się nie zgadzam</span>
+              <div class="scale">${[1,2,3,4,5].map(v => `<label><input type="radio" name="c1" value="${v}"/>${v}</label>`).join("")}</div>
+              <span class="scale-end right">5 – Zdecydowanie się zgadzam</span>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById("btn-next").textContent =
+        currentIdx === trials.length - 1 ? "Wyślij ankietę" : "Dalej →";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.getElementById("btn-next").addEventListener("click", async () => {
+      const t = trials[currentIdx];
+      const { category, subcategory } = getCodesFromId(t.img.id);
+
+      if (t.type === "A") {
+        const a1 = document.querySelector('input[name="a1"]:checked')?.value;
+        const a2 = document.querySelector('input[name="a2"]:checked')?.value;
+        const a3 = document.querySelector('input[name="a3"]:checked')?.value;
+        if (!a1 || !a2 || !a3) return alert("Odpowiedz na wszystkie pytania.");
+        results.A.push({
+          image_id: t.img.id,
+          category,
+          subcategory,
+          q1: Number(a1),
+          q2: Number(a2),
+          q3: Number(a3)
+        });
+      } else if (t.type === "B") {
+        const b1 = document.querySelector('input[name="b1"]:checked')?.value;
+        const b2 = document.querySelector('input[name="b2"]:checked')?.value;
+        if (!b1 || !b2) return alert("Odpowiedz na oba pytania.");
+        results.B.push({
+          image_id: t.img.id,
+          category,
+          subcategory,
+          predicted: b1,
+          confidence: Number(b2)
+        });
+      } else {
+        const c1 = document.querySelector('input[name="c1"]:checked')?.value;
+        if (!c1) return alert("Wybierz odpowiedź.");
+        results.C.push({
+          image_id: t.img.id,
+          category,
+          subcategory,
+          q1: Number(c1)
+        });
+      }
+
+      currentIdx++;
+      if (currentIdx < trials.length) {
+        renderTrial();
+      } else {
+        await submitSurvey();
+      }
+    });
+
+    async function submitSurvey() {
+      document.getElementById("step-trial").classList.add("hidden");
+      document.getElementById("step-done").classList.remove("hidden");
+      const statusEl = document.getElementById("status-msg");
+
+      const payload = {
+        ...metaData,
+        answersA: results.A,
+        answersB: results.B,
+        answersC: results.C
+      };
+
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        statusEl.textContent = "Odpowiedzi zostały zapisane. Dziękujemy za udział w badaniu!";
+      } catch (e) {
+        statusEl.textContent = "Wystąpił problem z wysyłaniem odpowiedzi. Spróbuj ponownie.";
+      }
+    }
+  </script>
+</body>
+</html>
